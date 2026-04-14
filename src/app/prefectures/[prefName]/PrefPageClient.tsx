@@ -1,0 +1,178 @@
+'use client'
+
+import { useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+
+type Post = {
+    id: string
+    userId: string
+    prefName: string
+    placeName: string
+    content: string
+    recommendation: number
+    atmosphere: number
+    expenses: number | null
+    date: string
+    createdAt?: string
+    isPrivate: boolean
+}
+
+export default function PrefsPage() {
+    const searchParams = useSearchParams()
+    const prefName = searchParams.get("prefName")
+    const router = useRouter()
+
+    const [user, setUser] = useState<any>(null)
+    const [posts, setPosts] = useState<Post[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const res = await fetch("/api/me")
+            const data = await res.json()
+            setUser(data.user)
+        }
+
+        fetchUser()
+    }, [])
+
+    useEffect(() => {
+        if (!prefName) return
+
+        const fetchPosts = async () => {
+            setLoading(true)
+
+            const res = await fetch(
+                `/api/posts?prefName=${encodeURIComponent(prefName)}`
+            )
+            const data = await res.json()
+
+            setPosts(data.posts ?? [])
+            setLoading(false)
+        }
+
+        fetchPosts()
+    }, [prefName])
+
+    const handlePost = (prefName: string | null) => {
+        if (!prefName) return
+        router.push(`/newPost?prefName=${encodeURIComponent(prefName)}`)
+    }
+
+    const renderStars = (value: number) => {
+        return "★".repeat(value) + "☆".repeat(5 - value)
+    }
+
+    const visiblePosts = posts.filter((post) => {
+        if (!post.isPrivate) return true
+        if (!user) return false
+        return post.userId === user.userId
+    })
+
+    return (
+        <>
+            <header className="h-14 bg-white shadow grid grid-cols-3 items-center px-4">
+                <h1
+                    className="text-3xl font-bold cursor-pointer"
+                    onClick={() => router.push("/")}
+                >
+                    旅ログ
+                </h1>
+
+                <h1 className="text-3xl font-bold text-center">
+                    {prefName}
+                </h1>
+
+                <div className="flex justify-end items-center gap-4 ml-auto">
+                    {user ? (
+                        <>
+                            <span className="font-medium">
+                                {user.userId} さん
+                            </span>
+                            <button
+                                onClick={async () => {
+                                    await fetch("/api/logout", { method: "POST" })
+                                    setUser(null)
+                                    router.push("/")
+                                }}
+                                className="text-red-500 font-semibold underline"
+                            >
+                                ログアウト
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <span>ゲスト さん</span>
+                            <button
+                                onClick={() => router.push("/login")}
+                                className="text-blue-500 font-semibold underline"
+                            >
+                                ログイン
+                            </button>
+                        </>
+                    )}
+                </div>
+            </header>
+
+            <div className="bg-gray-100 min-h-screen flex flex-col items-center pt-10">
+                {user && (
+                    <button
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6"
+                        onClick={() => handlePost(prefName)}
+                    >
+                        投稿する
+                    </button>
+                )}
+
+                <div className="w-full max-w-2xl space-y-4">
+                    {loading ? (
+                        <p>読み込み中...</p>
+                    ) : visiblePosts.length === 0 ? (
+                        <p>記事がありません</p>
+                    ) : (
+                        visiblePosts.map((post) => (
+                            <div
+                                key={post.id}
+                                className="bg-white p-4 rounded shadow"
+                            >
+                                <h2 className="font-bold text-lg">
+                                    {post.placeName}
+                                </h2>
+
+                                <p className="text-gray-600 mt-1">
+                                    {post.content}
+                                </p>
+
+                                <div className="text-sm text-gray-500 mt-2">
+                                    <p>投稿者: {post.userId}</p>
+                                    <p>日付: {post.date}</p>
+
+                                    <p>おすすめ度:</p>
+                                    <div className="ml-4">
+                                        {renderStars(post.recommendation)}
+                                    </div>
+
+                                    <p>雰囲気（1：静か ～ 5：賑やか）:</p>
+                                    <div className="ml-4">
+                                        {renderStars(post.atmosphere)}
+                                    </div>
+
+                                    {post.expenses && (
+                                        <p>費用: {post.expenses}円</p>
+                                    )}
+
+                                    {post.isPrivate && user?.userId === post.userId && (
+                                        <p className="text-xs text-red-500 mt-2">
+                                            ※この投稿は非公開です（自分のみ表示）
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        </>
+    )
+}
