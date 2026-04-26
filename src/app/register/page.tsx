@@ -105,7 +105,7 @@ export default function RegisterPage() {
 
                 <button
                     onClick={handleRegister}
-                    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors"
+                    className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors cursor-pointer"
                 >
                     登録
                 </button>

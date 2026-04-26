@@ -211,14 +211,14 @@ export default function PostPage({ user }: { user: any }) {
                         <div className="mt-6 flex gap-3">
                             <button
                                 onClick={() => setOpen(false)}
-                                className="w-1/2 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                className="w-1/2 py-2 bg-red-500 text-white rounded hover:bg-red-600 font-bold cursor-pointer"
                             >
                                 修正する
                             </button>
 
                             <button
                                 onClick={handleSubmit}
-                                className="w-1/2 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold"
+                                className="w-1/2 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold cursor-pointer"
                             >
                                 投稿する
                             </button>
@@ -236,7 +236,7 @@ export default function PostPage({ user }: { user: any }) {
                                     localStorage.removeItem("postPreview")
                                     router.back()
                                 }}
-                                className="text-sm text-blue-500 hover:text-black underline"
+                                className="text-sm text-blue-500 hover:text-black underline cursor-pointer"
                             >
                                 戻る
                             </button>
@@ -312,9 +312,10 @@ export default function PostPage({ user }: { user: any }) {
                         </div>
 
                         <div className="mb-6">
-                            <label className="flex items-center gap-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
+                                    className="cursor-pointer"
                                     checked={isPrivate}
                                     onChange={(e) => setIsPrivate(e.target.checked)}
                                 />
@@ -324,7 +325,7 @@ export default function PostPage({ user }: { user: any }) {
 
                         <button
                             onClick={() => savePreview()}
-                            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-bold"
+                            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-bold cursor-pointer"
                         >
                             内容を確認する
                         </button>

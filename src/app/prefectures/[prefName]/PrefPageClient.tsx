@@ -98,7 +98,7 @@ export default function PrefPageClient({
             <div className="bg-gray-100 min-h-screen flex flex-col items-center pt-10">
                 {user && (
                     <button
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6"
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6 cursor-pointer"
                         onClick={handlePost}
                     >
                         投稿する
@@ -106,6 +106,14 @@ export default function PrefPageClient({
                 )}
 
                 <div className="w-full max-w-2xl space-y-4">
+                    <button
+                        onClick={() => {
+                            router.back()
+                        }}
+                        className="text-sm text-blue-500 hover:text-black underline cursor-pointer"
+                    >
+                        戻る
+                    </button>
                     {visiblePosts.length === 0 ? (
                         <p>記事がありません</p>
                     ) : (
