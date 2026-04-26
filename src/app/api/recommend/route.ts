@@ -6,9 +6,11 @@ const genAI = new GoogleGenerativeAI(
   process.env.GEMINI_API_KEY!
 )
 
-export async function GET() {
+export async function POST(req: Request) {
   const cookieStore = await cookies()
   const userId = cookieStore.get("userId")?.value
+  const body = await req.json()
+  const customPrompt: string = body?.custom || ""
 
   if (!userId) {
     return Response.json(
@@ -24,8 +26,8 @@ export async function GET() {
 
   const diaryText = data?.map((d) =>
     `旅行先:${d.prefName}
-    タイトル:${d.placeName}
-    内容:${d.content}`
+    場所:${d.placeName}
+    本文:${d.content}`
   ).join("\n\n")
 
   const prompt = `
@@ -35,6 +37,12 @@ ${diaryText}
 
 このユーザーの旅行傾向を分析し、
 次におすすめの旅行先を日本国内で3つ提案してください。
+
+${customPrompt ? `こだわり条件：
+${customPrompt}
+${"\n"}
+【重要】なるべくこだわり条件の内容を加味すること
+` : ""}
 
 形式：
 

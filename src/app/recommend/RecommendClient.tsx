@@ -1,18 +1,26 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { useRouter } from "next/navigation"
 
 export default function RecommendClient({ user }: { user: any }) {
     const [result, setResult] = useState("")
     const [loading, setLoading] = useState(false)
+    const [custom, setCustom] = useState("")
     const router = useRouter()
-    
+
     const handleClick = async () => {
         setLoading(true)
 
-        const res = await fetch("/api/recommend")
+        const res = await fetch("/api/recommend", {
+            method: "POST",
+            body: JSON.stringify({ custom }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
         const data = await res.json()
 
         setResult(data.result)
@@ -43,10 +51,9 @@ export default function RecommendClient({ user }: { user: any }) {
                 <div className="max-w-3xl mx-auto p-8">
                     <button
                         onClick={() => {
-                            localStorage.removeItem("postPreview")
                             router.back()
                         }}
-                        className="text-sm text-blue-500 hover:text-black underline"
+                        className="text-sm text-blue-500 hover:text-black underline cursor-pointer"
                     >
                         戻る
                     </button>
@@ -55,6 +62,16 @@ export default function RecommendClient({ user }: { user: any }) {
                         このページでは 今までのあなたの記録から 新たな旅行先を提案します<br />
                         今後の旅先選びの参考にしてみましょう
                     </p>
+
+                    <div className="p-4 bg-white">
+                        <label className="font-medium">こだわり条件入力</label>
+                        <textarea
+                            value={custom}
+                            onChange={(e) => setCustom(e.target.value)}
+                            className="w-full border px-3 py-2 rounded"
+                            placeholder="こだわりや嗜好があれば入力してください"
+                        />
+                    </div>
 
                     <div className="flex justify-center m-4">
                         <button
