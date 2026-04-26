@@ -74,6 +74,11 @@ export default function PostPage({ user }: { user: any }) {
             return
         }
 
+        if (Number(expenses) < 0 || Number(expenses) > 2 ** 63 - 1) {
+            alert("費用の数値が大きすぎます")
+            return
+        }
+
         const data = {
             userId: user?.userId,
             date,
