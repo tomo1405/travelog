@@ -1,8 +1,6 @@
-'use client'
+"use client"
 
-import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
 
 type Post = {
     id: string
@@ -18,45 +16,29 @@ type Post = {
     isPrivate: boolean
 }
 
-export default function PrefsPage() {
-    const searchParams = useSearchParams()
-    const prefName = searchParams.get("prefName")
+type Props = {
+    user: any
+    prefName: string
+    initialPosts: Post[]
+}
+
+export default function PrefPageClient({
+    user,
+    prefName,
+    initialPosts,
+}: Props) {
     const router = useRouter()
 
-    const [user, setUser] = useState<any>(null)
-    const [posts, setPosts] = useState<Post[]>([])
-    const [loading, setLoading] = useState(true)
+    const handleLogout = async () => {
+        await fetch("/api/logout", {
+            method: "POST",
+        })
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const res = await fetch("/api/me")
-            const data = await res.json()
-            setUser(data.user)
-        }
+        router.replace("/")
+        router.refresh()
+    }
 
-        fetchUser()
-    }, [])
-
-    useEffect(() => {
-        if (!prefName) return
-
-        const fetchPosts = async () => {
-            setLoading(true)
-
-            const res = await fetch(
-                `/api/posts?prefName=${encodeURIComponent(prefName)}`
-            )
-            const data = await res.json()
-
-            setPosts(data.posts ?? [])
-            setLoading(false)
-        }
-
-        fetchPosts()
-    }, [prefName])
-
-    const handlePost = (prefName: string | null) => {
-        if (!prefName) return
+    const handlePost = () => {
         router.push(`/newPost?prefName=${encodeURIComponent(prefName)}`)
     }
 
@@ -64,7 +46,7 @@ export default function PrefsPage() {
         return "★".repeat(value) + "☆".repeat(5 - value)
     }
 
-    const visiblePosts = posts.filter((post) => {
+    const visiblePosts = initialPosts.filter((post) => {
         if (!post.isPrivate) return true
         if (!user) return false
         return post.userId === user.userId
@@ -84,18 +66,15 @@ export default function PrefsPage() {
                     {prefName}
                 </h1>
 
-                <div className="flex justify-end items-center gap-4 ml-auto">
+                <div className="flex justify-end items-center gap-4">
                     {user ? (
                         <>
                             <span className="font-medium">
                                 {user.userId} さん
                             </span>
+
                             <button
-                                onClick={async () => {
-                                    await fetch("/api/logout", { method: "POST" })
-                                    setUser(null)
-                                    router.push("/")
-                                }}
+                                onClick={handleLogout}
                                 className="text-red-500 font-semibold underline"
                             >
                                 ログアウト
@@ -104,6 +83,7 @@ export default function PrefsPage() {
                     ) : (
                         <>
                             <span>ゲスト さん</span>
+
                             <button
                                 onClick={() => router.push("/login")}
                                 className="text-blue-500 font-semibold underline"
@@ -119,16 +99,14 @@ export default function PrefsPage() {
                 {user && (
                     <button
                         className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6"
-                        onClick={() => handlePost(prefName)}
+                        onClick={handlePost}
                     >
                         投稿する
                     </button>
                 )}
 
                 <div className="w-full max-w-2xl space-y-4">
-                    {loading ? (
-                        <p>読み込み中...</p>
-                    ) : visiblePosts.length === 0 ? (
+                    {visiblePosts.length === 0 ? (
                         <p>記事がありません</p>
                     ) : (
                         visiblePosts.map((post) => (
@@ -162,11 +140,12 @@ export default function PrefsPage() {
                                         <p>費用: {post.expenses}円</p>
                                     )}
 
-                                    {post.isPrivate && user?.userId === post.userId && (
-                                        <p className="text-xs text-red-500 mt-2">
-                                            ※この投稿は非公開です（自分のみ表示）
-                                        </p>
-                                    )}
+                                    {post.isPrivate &&
+                                        user?.userId === post.userId && (
+                                            <p className="text-xs text-red-500 mt-2">
+                                                ※この投稿は非公開です（自分のみ表示）
+                                            </p>
+                                        )}
                                 </div>
                             </div>
                         ))
