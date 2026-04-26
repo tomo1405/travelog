@@ -26,12 +26,11 @@ function StarRating({
     )
 }
 
-export default function PostPage() {
+export default function PostPage({ user }: { user: any }) {
     const searchParams = useSearchParams()
     const prefName = searchParams.get("prefName")
     const router = useRouter()
 
-    const [user, setUser] = useState<any>(null)
     const [date, setDate] = useState("")
     const [placeName, setPlaceName] = useState("")
     const [content, setContent] = useState("")
@@ -39,16 +38,6 @@ export default function PostPage() {
     const [atmosphere, setAtmosphere] = useState(3)
     const [expenses, setExpenses] = useState("")
     const [isPrivate, setIsPrivate] = useState(false)
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const res = await fetch("/api/me")
-            const data = await res.json()
-            setUser(data.user)
-        }
-
-        fetchUser()
-    }, [])
 
     useEffect(() => {
         const saved = localStorage.getItem("postPreview")
@@ -167,6 +156,7 @@ export default function PostPage() {
                             value={placeName}
                             onChange={(e) => setPlaceName(e.target.value)}
                             className="w-full border px-3 py-2 rounded"
+                            placeholder="お店やホテル、観光地など"
                         />
                     </div>
 
@@ -176,6 +166,7 @@ export default function PostPage() {
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             className="w-full border px-3 py-2 rounded"
+                            placeholder="口コミがあればご記入ください"
                         />
                     </div>
 
