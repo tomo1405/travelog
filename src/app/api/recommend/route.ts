@@ -55,8 +55,20 @@ ${"\n"}
     model: "gemini-3-flash-preview"
   })
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text()
+  const result = await model.generateContentStream(prompt)
+  const stream = new ReadableStream({
+    async start(controller) {
+      for await (const chunk of result.stream) {
+        const text = chunk.text()
+        controller.enqueue(new TextEncoder().encode(text))
+      }
+      controller.close()
+    }
+  })
 
-  return Response.json({ result: text })
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  })
 }

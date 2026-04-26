@@ -12,6 +12,7 @@ export default function RecommendClient({ user }: { user: any }) {
 
     const handleClick = async () => {
         setLoading(true)
+        setResult("")
 
         const res = await fetch("/api/recommend", {
             method: "POST",
@@ -21,9 +22,21 @@ export default function RecommendClient({ user }: { user: any }) {
             }
         })
 
-        const data = await res.json()
+        const reader = res.body?.getReader()
+        const decoder = new TextDecoder()
 
-        setResult(data.result)
+        if (!reader) return
+
+        let done = false
+
+        while (!done) {
+            const { value, done: doneReading } = await reader.read()
+            done = doneReading
+
+            const chunk = decoder.decode(value)
+            setResult((prev) => prev + chunk)
+        }
+
         setLoading(false)
     }
 
@@ -76,13 +89,22 @@ export default function RecommendClient({ user }: { user: any }) {
                     <div className="flex justify-center m-4">
                         <button
                             onClick={handleClick}
-                            className="bg-blue-500 hover:bg-blue-600 cursor-pointer text-white px-4 py-2 rounded"
+                            disabled={loading}
+                            className={`px-4 py-2 rounded text-white ${loading
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-blue-500 hover:bg-blue-600"
+                                }`}
                         >
-                            提案してもらう
+                            {loading ? "分析中..." : "提案してもらう"}
                         </button>
                     </div>
 
-                    {loading && <p className="mt-4">分析中...</p>}
+                    {loading &&
+                        <div className="mt-6 flex flex-col items-center justify-center gap-3">
+                            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <p className="text-gray-600">旅行データを分析中...</p>
+                        </div>
+                    }
 
                     <pre className="mt-6 bg-white p-4 rounded whitespace-pre-wrap">
                         <ReactMarkdown>
