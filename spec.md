@@ -8,7 +8,8 @@
 
 # 技術スタック
 
-フロントエンド / バックエンド：Next.js
+言語：TypeScript
+フロントエンド / バックエンド：Next.js，TailwindCSS
 データベース：Supabase
 生成AI API：Google Gemini API
 
