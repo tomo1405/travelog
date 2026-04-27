@@ -35,7 +35,7 @@ export default function HomeClient({
     // }
     // router.push(`/prefecture/${prefName}`)
 
-    router.push(`/prefectures/${prefCode}?prefName=${encodeURIComponent(prefName)}`)
+    router.push(`/prefectures/${prefCode}?prefCode=${encodeURIComponent(prefCode)}&prefName=${encodeURIComponent(prefName)}`)
   }
 
   return (

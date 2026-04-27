@@ -18,12 +18,14 @@ type Post = {
 
 type Props = {
     user: any
+    prefCode: string
     prefName: string
     initialPosts: Post[]
 }
 
 export default function PrefPageClient({
     user,
+    prefCode,
     prefName,
     initialPosts,
 }: Props) {
@@ -40,6 +42,10 @@ export default function PrefPageClient({
 
     const handlePost = () => {
         router.push(`/newPost?prefName=${encodeURIComponent(prefName)}`)
+    }
+
+    const handleUpdate = () => {
+        router.push(`/update?prefCode=${encodeURIComponent(prefCode)}&prefName=${encodeURIComponent(prefName)}`)
     }
 
     const renderStars = (value: number) => {
@@ -97,12 +103,20 @@ export default function PrefPageClient({
 
             <div className="bg-gray-100 min-h-screen flex flex-col items-center pt-10">
                 {user && (
-                    <button
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6 cursor-pointer"
-                        onClick={handlePost}
-                    >
-                        投稿する
-                    </button>
+                    <div>
+                        <button
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg mb-6 cursor-pointer mx-4"
+                            onClick={handlePost}
+                        >
+                            投稿する
+                        </button>
+                        <button
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg mb-6 cursor-pointer mx-4"
+                            onClick={handleUpdate}
+                        >
+                            編集する
+                        </button>
+                    </div>
                 )}
 
                 <div className="w-full max-w-2xl space-y-4">
