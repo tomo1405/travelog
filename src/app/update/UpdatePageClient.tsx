@@ -99,9 +99,7 @@ export default function UpdatePageClient({
             return
         }
 
-        setLocalPosts((prev) =>
-            prev.map((p) => (p.id === form.id ? form : p))
-        )
+        setLocalPosts((prev) => prev.map((p) => (p.id === form.id ? form : p)))
 
         setEditingPost(null)
         if (!prefCode) {
@@ -110,6 +108,30 @@ export default function UpdatePageClient({
             return
         }
 
+        router.push(`/prefectures/${prefCode}?prefCode=${encodeURIComponent(prefCode)}&prefName=${encodeURIComponent(prefName)}`)
+        router.refresh()
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("この投稿を削除しますか？")) return
+
+        const res = await fetch("/api/delete", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id,
+                userId: user?.userId
+            })
+        })
+
+        if (!res.ok) {
+            alert("削除失敗")
+            return
+        }
+
+        setLocalPosts((prev) => prev.filter((p) => p.id !== id))
         router.push(`/prefectures/${prefCode}?prefCode=${encodeURIComponent(prefCode)}&prefName=${encodeURIComponent(prefName)}`)
         router.refresh()
     }
@@ -188,12 +210,20 @@ export default function UpdatePageClient({
                                         )}
 
                                     {user?.userId === post.userId && (
-                                        <button
-                                            onClick={() => openModal(post)}
-                                            className="text-blue-500 underline cursor-pointer"
-                                        >
-                                            編集
-                                        </button>
+                                        <div className="flex gap-3 mt-2">
+                                            <button
+                                                onClick={() => openModal(post)}
+                                                className="text-blue-500 underline cursor-pointer"
+                                            >
+                                                編集
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(post.id)}
+                                                className="text-red-500 underline cursor-pointer"
+                                            >
+                                                削除
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             </div>
